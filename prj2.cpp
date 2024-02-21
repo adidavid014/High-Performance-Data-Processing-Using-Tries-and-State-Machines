@@ -19,8 +19,31 @@ int main(int argc, char *argv[]){
         return 1;
     }
     string line;
+    bool startString = false;
+    int startIndex;
+    bool endString = false;
+    int endIndex;
     while(getline(inFS, line)){
-        
+        for(int i = 0; i < line.size(); i++){
+            if(line.at(i) == ' ' || line.at(i) == '\t') continue;
+            if(!startString && line.at(i) == '"'){
+                startString = true;
+                startIndex = i;
+            }
+            //string part
+            while(startString && !endString){
+                if(line.at(i) == '\\'){
+                    if(line.at(i+1) == '\\' || line.at(i+1) == '"') i+=2;
+                    else cout << "error" << endl; //error
+                }
+                if(line.at(i == '"')){
+                    endString = true;
+                    endIndex = i;
+                }
+                i++;
+            }
+
+        }
     }
 
 }
