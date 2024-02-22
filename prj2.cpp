@@ -25,6 +25,10 @@ int main(int argc, char *argv[]){
     bool endString = false;
     int endIndex;
     bool startNum = false;
+    int startNumIndex;
+    int endNumIndex;
+
+    map<string, int> data;
     while(getline(inFS, line)){
         for(int i = 0; i < line.size(); i++){
             if(line.at(i) == ' ' || line.at(i) == '\t') continue;
@@ -47,9 +51,25 @@ int main(int argc, char *argv[]){
             while(endString && line.at(i) == '0' && !startNum) continue;
             if(endString && isdigit(line.at(i))){
                 startNum = true; //allow zeros in the number
-                
+                startNumIndex = i;
             }
-
+            if(startNum){
+                if(line.at(i) == ' ' || line.at(i) == '\t'){
+                    endNumIndex = i;
+                    break;
+                }
+            }
+        }
+        string key = line.substr(startIndex, endIndex);
+        int value = stoi(line.substr(startNumIndex, endNumIndex));
+        auto it = data.find(key);
+        if(it != data.end()) {
+            if (value > it->second){
+                it->second = value;
+            }
+        }
+        else{
+            data[key] = value;
         }
     }
 
