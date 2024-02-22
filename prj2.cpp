@@ -3,6 +3,7 @@
 #include <string>
 #include <iomanip>
 #include <map>
+#include <cctype>
 using namespace std;
 
 int main(int argc, char *argv[]){
@@ -23,6 +24,7 @@ int main(int argc, char *argv[]){
     int startIndex;
     bool endString = false;
     int endIndex;
+    bool startNum = false;
     while(getline(inFS, line)){
         for(int i = 0; i < line.size(); i++){
             if(line.at(i) == ' ' || line.at(i) == '\t') continue;
@@ -41,6 +43,11 @@ int main(int argc, char *argv[]){
                     endIndex = i;
                 }
                 i++;
+            }
+            while(endString && line.at(i) == '0' && !startNum) continue;
+            if(endString && isdigit(line.at(i))){
+                startNum = true; //allow zeros in the number
+                
             }
 
         }
