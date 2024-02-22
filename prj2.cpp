@@ -26,15 +26,27 @@ int main(int argc, char *argv[]){
     int endIndex;
     bool startNum = false;
     int startNumIndex;
-    int endNumIndex;
+    int endNumIndex = 0;
+    bool firstNum = false;
 
     map<string, int> data;
     while(getline(inFS, line)){
-        for(int i = 0; i < line.size(); i++){
-            if(line.at(i) == ' ' || line.at(i) == '\t') continue;
+        bool startString = false;
+        int startIndex;
+        bool endString = false;
+        int endIndex;
+        bool startNum = false;
+        int startNumIndex;
+        int endNumIndex = 0;
+        bool firstNum = false;
+        for(unsigned int i = 0; i < line.size(); i++){
+            if(line.at(i) == ' ' || line.at(i) == '\t'){
+                continue;
+            }
             if(!startString && line.at(i) == '"'){
                 startString = true;
                 startIndex = i;
+                i++;
             }
             //string part
             while(startString && !endString){
@@ -42,26 +54,30 @@ int main(int argc, char *argv[]){
                     if(line.at(i+1) == '\\' || line.at(i+1) == '"') i+=2;
                     else cout << "error" << endl; //error
                 }
-                if(line.at(i == '"')){
+                if(line.at(i) == '"'){
                     endString = true;
-                    endIndex = i;
+                    endIndex = i+1;
                 }
                 i++;
             }
             while(endString && line.at(i) == '0' && !startNum) continue;
             if(endString && isdigit(line.at(i))){
                 startNum = true; //allow zeros in the number
-                startNumIndex = i;
+                if(!firstNum){
+                    startNumIndex = i;
+                    firstNum = true;
+                }
             }
             if(startNum){
                 if(line.at(i) == ' ' || line.at(i) == '\t'){
-                    endNumIndex = i;
+                    endNumIndex = i-1;
                     break;
                 }
             }
         }
-        string key = line.substr(startIndex, endIndex);
-        int value = stoi(line.substr(startNumIndex, endNumIndex));
+        if(endNumIndex == 0) endNumIndex = line.size();
+        string key = line.substr(startIndex, endIndex-startIndex);
+        int value = stoi(line.substr(startNumIndex, endNumIndex-1));
         auto it = data.find(key);
         if(it != data.end()) {
             if (value > it->second){
@@ -72,5 +88,8 @@ int main(int argc, char *argv[]){
             data[key] = value;
         }
     }
-
+    inFS.close();
+    for (const auto& pair : data) {
+        cout << pair.first << " " << pair.second << endl;
+    }
 }
