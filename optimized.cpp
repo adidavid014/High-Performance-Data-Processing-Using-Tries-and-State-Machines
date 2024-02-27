@@ -24,7 +24,7 @@ struct Node{
 vector<Node> trie(NUM_NODES);
 int nextIndex = 1;
 
-void insert(char* key, size_t len, int val){
+void insert(const char* key, size_t len, int val){
     int currIndex = 0; //root
 
     for(size_t i = 0; i < len; i++){
@@ -49,7 +49,7 @@ void insert(char* key, size_t len, int val){
     }
 }
 
-int getMax(char* key, size_t len){
+int getMax(const char* key, size_t len){
     int nodeIndex = 0;
 
     for(size_t i = 0; i < len; i++){
@@ -65,5 +65,18 @@ int getMax(char* key, size_t len){
         return trie[nodeIndex].val;
     }
     return -1;
+}
+
+int main(){
+    const char* key = "david";
+    size_t len = strlen(key); 
+    int val = 123;
+    insert(key, len, val);
+    const char* key2 = "david";
+    size_t len2 = strlen(key); 
+    int val2 = 456;
+    insert(key2, len2, val2);
+    cout << "Max value for david: " << getMax(key, len) << endl;
+    return 0;
 }
 
