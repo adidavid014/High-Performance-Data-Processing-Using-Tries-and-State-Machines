@@ -1,10 +1,16 @@
-all: prj2
+all: standard optimized
 
-prj2: prj2.o
-	g++ -Wall -Wextra -pedantic prj2.o -o prj2
-	
-prj2.o: prj2.cpp
-	g++ -Wall -Wextra -pedantic -c prj2.cpp
+standard: standard.o
+	g++ -Wall -Wextra -pedantic standard.o -o standard
+
+standard.o: standard.cpp
+	g++ -Wall -Wextra -pedantic -c standard.cpp
+
+optimized: optimized.o
+	g++ -Wall -Wextra -pedantic optimized.o -o optimized
+
+optimized.o: optimized.cpp
+	g++ -Wall -Wextra -pedantic -c optimized.cpp
 
 clean: 
-	rm -f *.o prj2
+	rm -f *.o standard optimized
