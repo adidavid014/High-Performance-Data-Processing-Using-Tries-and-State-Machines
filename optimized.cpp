@@ -74,7 +74,6 @@ int getMax(const char* key, size_t len){
 enum State{
     READ_WHITESPACE,
     READ_STRING,
-    ESCAPE,
     READ_INT,
     ERROR
 };
@@ -95,10 +94,10 @@ vector<ParsedData> parseData(const char* data, size_t fileSize){
         char currChar = data[i];
         switch(currState){
             case READ_WHITESPACE:
-                if(currChar == ' '){
+                if(currChar == ' ' || currChar == '\t'){
                     continue;
                 }
-                else if(currChar = '"'){
+                else if(currChar == '"'){
                     currState = READ_STRING;
                 }
                 else{
@@ -129,12 +128,17 @@ vector<ParsedData> parseData(const char* data, size_t fileSize){
                 break;
             case READ_INT:
                 if(isdigit(currChar)){
-                    currInt = currInt * 10 - (currChar - '0');
+                    currInt = currInt * 10 + (currChar - '0');
                 }
+                // else if(currChar == '\n'){
+
+                //     continue;
+                // }
                 else{
                     currState = READ_WHITESPACE;
                     currData.num = currInt;
                     parsedLines.push_back(currData);
+                    currData = {};
                     currInt = 0;
                 }
                 break;
@@ -161,17 +165,23 @@ int main(int argc, char *argv[]){
     // insert(key2, len2, val2);
     // cout << "Max value for david: " << getMax(key, len) << endl;
 
-
     //open the file
+    if(argc != 2){
+        //error
+        cout << "argc error" << endl;
+        return 1;
+    }
     const char* fileName = argv[1];
     int fd = open(fileName, O_RDONLY);
     if(fd == -1){
         //error
+        cout << "fd error" << endl;
         return 1;
     }
 
     struct stat fileInfo;
     if(fstat(fd, &fileInfo) == -1){
+        cout << "fstat error" << endl;
         //error
         return 1;
     }
@@ -179,12 +189,15 @@ int main(int argc, char *argv[]){
     char* data = static_cast<char*>(mmap(nullptr, fileInfo.st_size, PROT_READ, MAP_PRIVATE, fd, 0));
     if(data == MAP_FAILED){
         //error
+        cout << "map error" << endl;
         close(fd);
         return 1;
     }
 
-    auto parsedEntries = parseData(data, fileInfo.st_size);
-    for (const auto& entry : parsedEntries) {
+    vector<ParsedData> parsedLines = parseData(data, fileInfo.st_size);
+    cout << parsedLines.size() << endl;
+    for (const auto& entry : parsedLines) {
+        cout << "here" << endl;
         cout << entry.str << " " << entry.num << endl;
     }
 
