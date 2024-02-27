@@ -43,9 +43,23 @@ void insert(char* key, size_t len, int val){
         currIndex = trie[currIndex].children[charIndex];
     }
     trie[currIndex].end = true;
-    
+
     if(val > trie[currIndex].val){
         trie[currIndex].val = val;
     }
+}
+
+int getMax(char* key, size_t len){
+    int nodeIndex = 0;
+
+    for(size_t i = 0; i < len; i++){
+        int charIndex = key[i] - ' ';
+        if(trie[nodeIndex].children[charIndex] == -1){
+            //error: string not found
+            return -1;
+        }
+        nodeIndex = trie[nodeIndex].children[charIndex];
+    }
+    
 }
 
