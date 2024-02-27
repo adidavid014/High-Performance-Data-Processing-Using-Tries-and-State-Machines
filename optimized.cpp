@@ -4,7 +4,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include <sys/stat.h>
 
 #define NUM_NODES 10000
 #define NUM_CHARS 95
@@ -71,6 +71,85 @@ int getMax(const char* key, size_t len){
     return -1;
 }
 
+enum State{
+    READ_WHITESPACE,
+    READ_STRING,
+    ESCAPE,
+    READ_INT,
+    ERROR
+};
+
+struct ParsedData{
+    string str;
+    int num;
+};
+
+vector<ParsedData> parseData(const char* data, size_t fileSize){
+    vector<ParsedData> parsedLines;
+    State currState = READ_WHITESPACE;
+    string currStr;
+    int currInt = 0;
+    ParsedData currData;
+
+    for(size_t i = 0; i < fileSize; ++i){
+        char currChar = data[i];
+        switch(currState){
+            case READ_WHITESPACE:
+                if(currChar == ' '){
+                    continue;
+                }
+                else if(currChar = '"'){
+                    currState = READ_STRING;
+                }
+                else{
+                    currState = ERROR;
+                    //error
+                }
+                break;
+            case READ_STRING:
+                if(currChar == '\\'){
+                    char nextChar = data[i+1];
+                    if(nextChar == '\\' || nextChar == '"'){
+                        currStr += currChar;
+                        currStr += nextChar;
+                        i+=2;
+                    }
+                    else{
+                        //error
+                    }
+                }
+                else if(currChar == '"'){
+                    currData.str = currStr;
+                    currStr.clear();
+                    currState = READ_WHITESPACE;
+                }
+                else{
+                    currStr += currChar;
+                }
+                break;
+            case READ_INT:
+                if(isdigit(currChar)){
+                    currInt = currInt * 10 - (currChar - '0');
+                }
+                else{
+                    currState = READ_WHITESPACE;
+                    currData.num = currInt;
+                    parsedLines.push_back(currData);
+                    currInt = 0;
+                }
+                break;
+            case ERROR:
+                //error at this line
+                return parsedLines;
+        }
+        if(currState == READ_WHITESPACE && isdigit(currChar)){
+            currState = READ_INT;
+            currInt = currChar - '0';
+        }
+    }
+    return parsedLines;
+}
+
 int main(int argc, char *argv[]){
     // const char* key = "david";
     // size_t len = strlen(key); 
@@ -84,20 +163,37 @@ int main(int argc, char *argv[]){
 
 
     //open the file
-    char* fileName = argv[1];
-    int fd = open(filepath, O_RDONLY);
+    const char* fileName = argv[1];
+    int fd = open(fileName, O_RDONLY);
     if(fd == -1){
         //error
         return 1;
     }
 
     struct stat fileInfo;
-    if (fstat(fd, &fileInfo) == -1) {
+    if(fstat(fd, &fileInfo) == -1){
         //error
         return 1;
     }
 
-    
+    char* data = static_cast<char*>(mmap(nullptr, fileInfo.st_size, PROT_READ, MAP_PRIVATE, fd, 0));
+    if(data == MAP_FAILED){
+        //error
+        close(fd);
+        return 1;
+    }
+
+    auto parsedEntries = parseData(data, fileInfo.st_size);
+    for (const auto& entry : parsedEntries) {
+        cout << entry.str << " " << entry.num << endl;
+    }
+
+    if(munmap(data, fileInfo.st_size) == -1){
+        //error
+    }
+
+    close(fd);
+
 
     return 0;
 }
