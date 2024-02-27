@@ -60,6 +60,10 @@ int getMax(char* key, size_t len){
         }
         nodeIndex = trie[nodeIndex].children[charIndex];
     }
-    
+
+    if(trie[nodeIndex].end){
+        return trie[nodeIndex].val;
+    }
+    return -1;
 }
 
