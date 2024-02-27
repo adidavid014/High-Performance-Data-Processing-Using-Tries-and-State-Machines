@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <sys/mman.h>
+
 
 #define NUM_NODES 10000
 #define NUM_CHARS 95
