@@ -2,6 +2,8 @@
 #include <vector>
 #include <cstring>
 #include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 
 #define NUM_NODES 10000
@@ -69,16 +71,34 @@ int getMax(const char* key, size_t len){
     return -1;
 }
 
-int main(){
-    const char* key = "david";
-    size_t len = strlen(key); 
-    int val = 123;
-    insert(key, len, val);
-    const char* key2 = "david";
-    size_t len2 = strlen(key); 
-    int val2 = 456;
-    insert(key2, len2, val2);
-    cout << "Max value for david: " << getMax(key, len) << endl;
+int main(int argc, char *argv[]){
+    // const char* key = "david";
+    // size_t len = strlen(key); 
+    // int val = 123;
+    // insert(key, len, val);
+    // const char* key2 = "david";
+    // size_t len2 = strlen(key); 
+    // int val2 = 456;
+    // insert(key2, len2, val2);
+    // cout << "Max value for david: " << getMax(key, len) << endl;
+
+
+    //open the file
+    char* fileName = argv[1];
+    int fd = open(filepath, O_RDONLY);
+    if(fd == -1){
+        //error
+        return 1;
+    }
+
+    struct stat fileInfo;
+    if (fstat(fd, &fileInfo) == -1) {
+        //error
+        return 1;
+    }
+
+    
+
     return 0;
 }
 
