@@ -40,8 +40,9 @@ void insert(string key, int val){
         }
 
         if(trie[currIndex].children[charIndex] == -1){ //no child inserted in this index yet
-            trie[currIndex].children[charIndex] = trie.size();
-            trie.push_back(Node());
+            trie[currIndex].children[charIndex] = nextIndex;
+            trie[nextIndex] = Node();
+            nextIndex++;
         }
 
         currIndex = trie[currIndex].children[charIndex];
@@ -55,7 +56,6 @@ void insert(string key, int val){
 
 int getMax(string key){
     int nodeIndex = 0;
-
     for(size_t i = 0; i < key.length(); i++){
         int charIndex = key[i] - ' ';
         if(trie[nodeIndex].children[charIndex] == -1){
@@ -179,7 +179,8 @@ int main(int argc, char *argv[]){
         close(fd);
         return 1;
     }
-    
+
+    parseData(data, fileInfo.st_size);
 
 
     if(munmap(data, fileInfo.st_size) == -1){
