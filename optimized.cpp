@@ -56,7 +56,7 @@ void insert(string key, int val){
 
 void dfs(const Node& node, string str){
     if(node.end){
-        cout << str << " " << node.val << endl;
+        cout << "\"" << str << "\" " << node.val << endl;
     }
     for(int i = 0; i < NUM_CHARS; i++){
         if(node.children[i] != -1){
