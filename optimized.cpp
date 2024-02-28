@@ -54,7 +54,7 @@ void insert(string key, int val){
     }
 }
 
-void dfs(const Node& node, string str, int index = 0){
+void dfs(const Node& node, string str){
     if(node.end){
         cout << str << " " << node.val << endl;
     }
@@ -83,11 +83,15 @@ void parseData(const char* data, size_t fileSize){
                     continue;
                 }
                 else if(data[i] == '"'){ //whitespace before string
-                    i++;
+                    // //i++;
+                    // cout << "first data[i]: " << data[i] << endl;
+                    // cout << "first i: " << i << endl;
                     currState = READ_STRING;
                 }
                 else if(isdigit(data[i])){ //whitespace between string and int
+                    cout << "switch data[i]: " << data[i] << endl;
                     currState = READ_INT;
+                    i--;
                 }
                 else{
                     //error
@@ -113,7 +117,7 @@ void parseData(const char* data, size_t fileSize){
                 break;
             case READ_INT:
                 if(isdigit(data[i])){
-                    num = num * 10 + (data[i] - ' ');
+                    num = num * 10 + (data[i] - '0');
                 }
                 else if(data[i] == '\n' || data[i] == ' ' || data[i] == '\t'){
                     //insert into tree
@@ -124,6 +128,7 @@ void parseData(const char* data, size_t fileSize){
                     currState = READ_WHITESPACE;
                 }
                 else if(i == fileSize-1){
+                    cout << "end string: " << currString << ". end num: " << num << endl;
                     insert(currString, num);
                 }
                 else{
@@ -136,16 +141,6 @@ void parseData(const char* data, size_t fileSize){
 
 
 int main(int argc, char *argv[]){
-    // const char* key = "david";
-    // size_t len = strlen(key); 
-    // int val = 123;
-    // insert(key, len, val);
-    // const char* key2 = "david";
-    // size_t len2 = strlen(key); 
-    // int val2 = 456;
-    // insert(key2, len2, val2);
-    // cout << "Max value for david: " << getMax(key, len) << endl;
-
     //open the file
     if(argc != 2){
         //error
@@ -175,16 +170,16 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
+    cout << data << endl;
+
     parseData(data, fileInfo.st_size);
 
+    dfs(trie[0], "");
 
     if(munmap(data, fileInfo.st_size) == -1){
         //error
     }
-
     close(fd);
-
-
     return 0;
 }
 
