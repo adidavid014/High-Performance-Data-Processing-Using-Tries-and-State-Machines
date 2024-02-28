@@ -54,21 +54,16 @@ void insert(string key, int val){
     }
 }
 
-int getMax(string key){
-    int nodeIndex = 0;
-    for(size_t i = 0; i < key.length(); i++){
-        int charIndex = key[i] - ' ';
-        if(trie[nodeIndex].children[charIndex] == -1){
-            //error: string not found
-            return -1;
+void dfs(const Node& node, string str, int index = 0){
+    if(node.end){
+        cout << str << " " << node.val << endl;
+    }
+    for(int i = 0; i < NUM_CHARS; i++){
+        if(node.children[i] != -1){
+            char nextChar = ' ' + i;
+            dfs(trie[node.children[i]], str+nextChar);
         }
-        nodeIndex = trie[nodeIndex].children[charIndex];
     }
-
-    if(trie[nodeIndex].end){
-        return trie[nodeIndex].val;
-    }
-    return -1;
 }
 
 enum State{
