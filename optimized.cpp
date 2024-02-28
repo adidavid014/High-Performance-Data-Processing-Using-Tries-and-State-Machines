@@ -74,25 +74,20 @@ int getMax(string key){
 enum State{
     READ_WHITESPACE,
     READ_STRING,
-    READ_INT,
-    ERROR
+    READ_INT
 };
 
 void parseData(const char* data, size_t fileSize){
     string currString = "";
     int num = 0;
     State currState = READ_WHITESPACE;
-    bool startString = false;
-    bool endString = false;
     for(size_t i = 0; i < fileSize; i++){
-        char currChar = data[i];
         switch(currState){
             case READ_WHITESPACE:
                 if(data[i] == ' ' || data[i] == '\t'){
                     continue;
                 }
-                else if(data[i] == '"' && startString == false){ //whitespace before string
-                    startString = true;
+                else if(data[i] == '"'){ //whitespace before string
                     i++;
                     currState = READ_STRING;
                 }
@@ -115,7 +110,6 @@ void parseData(const char* data, size_t fileSize){
                     }
                 }
                 else if(data[i] == '"'){
-                    endString = true;
                     currState = READ_WHITESPACE;
                 }
                 else{
@@ -126,7 +120,7 @@ void parseData(const char* data, size_t fileSize){
                 if(isdigit(data[i])){
                     num = num * 10 + (data[i] - ' ');
                 }
-                else if(data[i] == '\n'){
+                else if(data[i] == '\n' || data[i] == ' ' || data[i] == '\t'){
                     //insert into tree
                     //reset string and num
                     insert(currString, num);
@@ -134,98 +128,17 @@ void parseData(const char* data, size_t fileSize){
                     num = 0;
                     currState = READ_WHITESPACE;
                 }
+                else if(i == fileSize-1){
+                    insert(currString, num);
+                }
                 else{
                     //error
                 }
+                break;
         }
-
     }
-
 }
 
-
-//iterate through file
-    // for(size_t i = 0; i < fileInfo.st_size; i++){
-    //     //data[i] is the character you're at
-    //     //know you're at the end of the with newline
-    //     //last line in data just ends, there's no newline
-    //     //if i == fileinfosize -1, && != newline, it's the last character
-    // }
-// struct ParsedData{
-//     string str;
-//     int num;
-// };
-
-// vector<ParsedData> parseData(const char* data, size_t fileSize){
-//     vector<ParsedData> parsedLines;
-//     State currState = READ_WHITESPACE;
-//     string currStr;
-//     int currInt = 0;
-//     ParsedData currData;
-
-//     for(size_t i = 0; i < fileSize; ++i){
-//         char currChar = data[i];
-//         switch(currState){
-//             case READ_WHITESPACE:
-//                 if(currChar == ' ' || currChar == '\t'){
-//                     continue;
-//                 }
-//                 else if(currChar == '"'){
-//                     currState = READ_STRING;
-//                 }
-//                 else{
-//                     currState = ERROR;
-//                     //error
-//                 }
-//                 break;
-//             case READ_STRING:
-//                 if(currChar == '\\'){
-//                     char nextChar = data[i+1];
-//                     if(nextChar == '\\' || nextChar == '"'){
-//                         currStr += currChar;
-//                         currStr += nextChar;
-//                         i+=2;
-//                     }
-//                     else{
-//                         //error
-//                     }
-//                 }
-//                 else if(currChar == '"'){
-//                     currData.str = currStr;
-//                     currStr.clear();
-//                     currState = READ_WHITESPACE;
-//                 }
-//                 else{
-//                     currStr += currChar;
-//                 }
-//                 break;
-//             case READ_INT:
-//                 if(isdigit(currChar)){
-//                     currInt = currInt * 10 + (currChar - '0');
-//                 }
-//                 // else if(currChar == '\n'){
-
-//                 //     continue;
-//                 // }
-//                 else{
-//                     currState = READ_WHITESPACE;
-//                     currData.num = currInt;
-//                     parsedLines.push_back(currData);
-//                     currData = {};
-//                     currInt = 0;
-//                 }
-//                 break;
-//             case ERROR:
-//                 //error at this line
-//                 return parsedLines;
-//         }
-//         if(currState == READ_WHITESPACE && isdigit(currChar)){
-//             currState = READ_INT;
-//             currInt = currChar - '0';
-//         }
-//     }
-//     return parsedLines;
-// }
 
 int main(int argc, char *argv[]){
     // const char* key = "david";
@@ -266,13 +179,8 @@ int main(int argc, char *argv[]){
         close(fd);
         return 1;
     }
+    
 
-    //vector<ParsedData> parsedLines = parseData(data, fileInfo.st_size);
-    //cout << parsedLines.size() << endl;
-    for (const auto& entry : parsedLines) {
-        cout << "here" << endl;
-        cout << entry.str << " " << entry.num << endl;
-    }
 
     if(munmap(data, fileInfo.st_size) == -1){
         //error
