@@ -83,13 +83,9 @@ void parseData(const char* data, size_t fileSize){
                     continue;
                 }
                 else if(data[i] == '"'){ //whitespace before string
-                    // //i++;
-                    // cout << "first data[i]: " << data[i] << endl;
-                    // cout << "first i: " << i << endl;
                     currState = READ_STRING;
                 }
                 else if(isdigit(data[i])){ //whitespace between string and int
-                    cout << "switch data[i]: " << data[i] << endl;
                     currState = READ_INT;
                     i--;
                 }
@@ -102,7 +98,7 @@ void parseData(const char* data, size_t fileSize){
                     if(data[i+1] == '\\' || data[i+1] == '"'){
                         currString += data[i];
                         currString += data[i+1];
-                        i+=2;
+                        i++;
                     }
                     else{
                         //error
@@ -119,6 +115,10 @@ void parseData(const char* data, size_t fileSize){
                 if(isdigit(data[i])){
                     num = num * 10 + (data[i] - '0');
                 }
+                if(i == (fileSize-1)){
+                    insert(currString, num);
+                    currState = READ_WHITESPACE;
+                }
                 else if(data[i] == '\n' || data[i] == ' ' || data[i] == '\t'){
                     //insert into tree
                     //reset string and num
@@ -126,10 +126,6 @@ void parseData(const char* data, size_t fileSize){
                     currString = "";
                     num = 0;
                     currState = READ_WHITESPACE;
-                }
-                else if(i == fileSize-1){
-                    cout << "end string: " << currString << ". end num: " << num << endl;
-                    insert(currString, num);
                 }
                 else{
                     //error
@@ -170,7 +166,6 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    cout << data << endl;
 
     parseData(data, fileInfo.st_size);
 
