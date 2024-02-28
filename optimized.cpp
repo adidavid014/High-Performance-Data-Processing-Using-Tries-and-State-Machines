@@ -72,14 +72,16 @@ enum State{
     READ_INT
 };
 
-void parseData(const char* data, size_t fileSize){
+int lineNum = 1;
+
+int parseData(const char* data, size_t fileSize){
     string currString = "";
     int num = 0;
     State currState = READ_WHITESPACE;
     for(size_t i = 0; i < fileSize; i++){
         switch(currState){
             case READ_WHITESPACE:
-                if(data[i] == ' ' || data[i] == '\t'){
+                if(data[i] == ' ' || data[i] == '\t' || data[i] == '\n'){
                     continue;
                 }
                 else if(data[i] == '"'){ //whitespace before string
@@ -90,7 +92,8 @@ void parseData(const char* data, size_t fileSize){
                     i--;
                 }
                 else{
-                    //error
+                    cout << "write Error at line " << lineNum << "." << endl;
+                    return 0;
                 }
                 break;
             case READ_STRING:
@@ -101,7 +104,8 @@ void parseData(const char* data, size_t fileSize){
                         i++;
                     }
                     else{
-                        //error
+                        cerr << "string Error at line " << lineNum << "." << endl;
+                        return 0;
                     }
                 }
                 else if(data[i] == '"'){
@@ -115,24 +119,26 @@ void parseData(const char* data, size_t fileSize){
                 if(isdigit(data[i])){
                     num = num * 10 + (data[i] - '0');
                 }
-                if(i == (fileSize-1)){
-                    insert(currString, num);
-                    currState = READ_WHITESPACE;
-                }
                 else if(data[i] == '\n' || data[i] == ' ' || data[i] == '\t'){
-                    //insert into tree
-                    //reset string and num
                     insert(currString, num);
+                    lineNum++;
                     currString = "";
                     num = 0;
                     currState = READ_WHITESPACE;
                 }
                 else{
-                    //error
+                    cout << "string: " << currString << ". " << data[i] << endl;
+                    cout << "int Error at line " << lineNum << "." << endl;
+                    return 0;
+                }
+                if(i == (fileSize-1)){
+                    insert(currString, num);
+                    currState = READ_WHITESPACE;
                 }
                 break;
         }
     }
+    return 1;
 }
 
 
@@ -167,7 +173,10 @@ int main(int argc, char *argv[]){
     }
 
 
-    parseData(data, fileInfo.st_size);
+
+    if(parseData(data, fileInfo.st_size) == 0){
+        return 0;
+    }
 
     dfs(trie[0], "");
 
