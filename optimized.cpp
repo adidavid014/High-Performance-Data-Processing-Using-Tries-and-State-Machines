@@ -220,8 +220,8 @@ int main(int argc, char *argv[]){
     
     auto stop_tp = chrono::steady_clock::now();
     auto duration = chrono::duration<double>(stop_tp - start_tp);
-    cout << "Elapsed time: " << duration.count()/lineNum << endl;
-
+    lineNum--;
+    cout << "Lines per second: " << lineNum/duration.count() << endl;
     string outputFile = string(argv[1]) + "-results";
     ofstream outFile(outputFile);
     char dfsString[21];
