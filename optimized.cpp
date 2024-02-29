@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <chrono>
 
 #define NUM_NODES 10000
 #define NUM_CHARS 95
@@ -114,6 +115,10 @@ int parseData(const char* data, size_t fileSize){
                 else if(data[i] == '"'){
                     currState = READ_WHITESPACE;
                 }
+                else if(data[i] < 0x20 || data[i] > 0x7E){
+                    cout << "Error at line " << lineNum << "." << endl;
+                    return 0;
+                }
                 else{
                     charString[charIndex] = data[i];
                     charIndex++;
@@ -134,9 +139,11 @@ int parseData(const char* data, size_t fileSize){
                     }
                 }
                 else if(data[i] == '\n' || data[i] == ' ' || data[i] == '\t'){
+                    if(num == 0){
+                        cout << lineNum;
+                    }
                     insert(charString, charIndex, num);
                     lineNum++;
-                    currString = "";
                     charIndex = 0;
                     memset(charString, '\0', 20);
                     num = 0;
@@ -148,8 +155,13 @@ int parseData(const char* data, size_t fileSize){
                     return 0;
                 }
                 if(i == (fileSize-1)){
-                    insert(charString, charIndex, num);
-                    currState = READ_WHITESPACE;
+                    if(num == 0){
+                        continue;
+                    }
+                    else{
+                        insert(charString, charIndex, num);
+                        currState = READ_WHITESPACE;
+                    }
                 }
                 break;
         }
@@ -189,10 +201,15 @@ int main(int argc, char *argv[]){
     }
 
 
+    auto start_tp = std::chrono::steady_clock::now();
 
     if(parseData(data, fileInfo.st_size) == 0){
         return 0;
     }
+    
+    auto stop_tp = chrono::steady_clock::now();
+    auto duration = chrono::duration<double>(stop_tp - start_tp);
+    cout << "Elapsed time: " << duration.count() << endl;
 
     string outputFile = string(argv[1]) + "-results";
     ofstream outFile(outputFile);
