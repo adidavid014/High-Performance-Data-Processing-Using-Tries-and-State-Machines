@@ -54,14 +54,27 @@ void insert(char* key, size_t len, int val){
     }
 }
 
-void dfs(const Node& node, string str, ofstream& outFile){
+// void dfs(const Node& node, string str, ofstream& outFile){
+//     if(node.end){
+//         outFile << "\"" << str << "\" " << node.val << endl;
+//     }
+//     for(int i = 0; i < NUM_CHARS; i++){
+//         if(node.children[i] != -1){
+//             char nextChar = ' ' + i;
+//             dfs(trie[node.children[i]], str+nextChar, outFile);
+//         }
+//     }
+// }
+
+void dfs(const Node& node, char* str, int charIndex, ofstream& outFile){
     if(node.end){
         outFile << "\"" << str << "\" " << node.val << endl;
     }
     for(int i = 0; i < NUM_CHARS; i++){
-        if(node.children[i] != -1){
-            char nextChar = ' ' + i;
-            dfs(trie[node.children[i]], str+nextChar, outFile);
+        if(node.children[i] != -1 && charIndex < 20){
+            str[charIndex] = ' ' + i; 
+            str[charIndex + 1] = '\0'; 
+            dfs(trie[node.children[i]], str, charIndex + 1, outFile);
         }
     }
 }
@@ -77,7 +90,6 @@ int lineNum = 1;
 int parseData(const char* data, size_t fileSize){
     char charString[20];
     int charIndex = 0;
-    string currString = "";
     int num = 0;
     bool startInt = false;
     State currState = READ_WHITESPACE;
@@ -122,7 +134,6 @@ int parseData(const char* data, size_t fileSize){
                 else{
                     charString[charIndex] = data[i];
                     charIndex++;
-                    currString += data[i];
                 }
                 break;
             case READ_INT:
@@ -209,12 +220,12 @@ int main(int argc, char *argv[]){
     
     auto stop_tp = chrono::steady_clock::now();
     auto duration = chrono::duration<double>(stop_tp - start_tp);
-    cout << "Elapsed time: " << duration.count() << endl;
+    cout << "Elapsed time: " << duration.count()/lineNum << endl;
 
     string outputFile = string(argv[1]) + "-results";
     ofstream outFile(outputFile);
-
-    dfs(trie[0], "", outFile);
+    char dfsString[21];
+    dfs(trie[0], dfsString, 0, outFile);
 
     if(munmap(data, fileInfo.st_size) == -1){
         //error
