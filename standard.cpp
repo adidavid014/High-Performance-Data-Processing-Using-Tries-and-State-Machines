@@ -71,6 +71,12 @@ int main(int argc, char *argv[]){
                     firstNum = true;
                 }
             }
+            //Part added following grading
+            if(endString && !isdigit(line.at(i)) && line.at(i)!=' ' && line.at(i) != '\t'){
+                cout << "Error at line " << lineNum << "." << endl;
+                return 0;
+            }
+            //end of part added
             if(startNum){
                 if(line.at(i) == ' ' || line.at(i) == '\t'){
                     endNumIndex = i-1;
