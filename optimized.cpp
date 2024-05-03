@@ -8,7 +8,7 @@
 #include <chrono>
 #include <iomanip>
 
-#define NUM_NODES 10000
+#define NUM_NODES 200000
 #define NUM_CHARS 95
 
 using namespace std;
